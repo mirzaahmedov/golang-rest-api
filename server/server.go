@@ -1,6 +1,7 @@
 package server
 
 import (
+	"api/models"
 	"api/store"
 	"encoding/json"
 	"log"
@@ -27,10 +28,11 @@ func (s *Server)Start() error {
 
 	s.bindHandlers()
 
-	if err := http.ListenAndServe(s.config.PORT, s.router); err != nil {
+	if err := s.store.Open(); err != nil {
 		return err
 	}
-	return nil
+
+	return http.ListenAndServe(s.config.PORT, s.router)
 }
 
 func (s *Server) bindHandlers(){
@@ -53,7 +55,22 @@ func (s *Server) bindHandlers(){
 		w.Write(result)
 	}).Methods("GET")
 
-	s.router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, req *http.Request){
-		w.Write([]byte("Hello"))
-	}).Methods("GET")
+	s.router.PathPrefix("/register").HandlerFunc(func(w http.ResponseWriter, req *http.Request){
+		user, err := s.store.RegisterUser(&models.User{
+			Id: 100,
+			Name: "From Golang",
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		bytes, err := json.Marshal(user)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(201)
+		w.Write(bytes)
+	})
 }

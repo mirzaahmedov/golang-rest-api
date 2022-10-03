@@ -1,7 +1,7 @@
 package store
 
 type Config struct {
-	URI string
+	DatabaseURL string
 }
 
 func NewConfig() *Config {

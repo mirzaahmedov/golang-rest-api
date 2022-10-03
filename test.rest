@@ -1,1 +1,1 @@
-GET http://localhost:5500/json
+GET http://localhost:5500/register
