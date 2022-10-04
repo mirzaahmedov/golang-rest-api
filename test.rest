@@ -1,1 +1,1 @@
-GET http://localhost:5500/register
+GET https://golang-rest-api-production-1618.up.railway.app/user/
