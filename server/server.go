@@ -1,10 +1,8 @@
 package server
 
 import (
-	"api/models"
+	"api/handlers"
 	"api/store"
-	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -26,7 +24,7 @@ func New(config *Config) *Server {
 
 func (s *Server)Start() error {
 
-	s.bindHandlers()
+	s.setup()
 
 	if err := s.store.Open(); err != nil {
 		return err
@@ -35,42 +33,11 @@ func (s *Server)Start() error {
 	return http.ListenAndServe(s.config.PORT, s.router)
 }
 
-func (s *Server) bindHandlers(){
-	type Person struct {
-		Name string `json:"name"`
-	}
+func (s *Server)use(path string, handler handlers.RouteHandler) {
+	handler(path, s.router)
+}
+func (s *Server) setup(){
+	
+	s.use("/user", handlers.UserHandler)
 
-	me := Person{
-		Name: "Bekzod",
-	}
-
-	result, err := json.Marshal(&me)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	s.router.PathPrefix("/json").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(201)
-		w.Write(result)
-	}).Methods("GET")
-
-	s.router.PathPrefix("/register").HandlerFunc(func(w http.ResponseWriter, req *http.Request){
-		user, err := s.store.RegisterUser(&models.User{
-			Id: 100,
-			Name: "From Golang",
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		bytes, err := json.Marshal(user)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(201)
-		w.Write(bytes)
-	})
 }

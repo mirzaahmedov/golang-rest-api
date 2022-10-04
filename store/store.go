@@ -45,7 +45,7 @@ func (s *Store)Close() {
 	s.db.Close()
 }
 
-func (s *Store)RegisterUser(u *models.User) (*models.User, error) {
+func (s *Store)RegisterNewUser(u *models.User) (*models.User, error) {
 	if err := s.db.QueryRow(
 		"INSERT INTO people (id, name) VALUES ($1,$2) RETURNING *", 
 		u.Id, 
@@ -55,4 +55,16 @@ func (s *Store)RegisterUser(u *models.User) (*models.User, error) {
 	}
 
 	return u, nil
+}
+
+func (s *Store)GetAllUsers() ([]models.User ,error) {
+	var people []models.User
+
+	if err := s.db.QueryRow(
+		"SELECT * FROM people",
+	).Scan(&people); err != nil {
+		return nil, err
+	}
+
+	return people, nil
 }
