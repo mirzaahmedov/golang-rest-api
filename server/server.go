@@ -32,7 +32,7 @@ func (s *Server)Start() error {
 	}
 
 	if len(os.Getenv("PORT")) > 0 {
-		s.config.PORT = os.Getenv("PORT")
+		s.config.PORT = ":" + os.Getenv("PORT")
 	}
 
 	return http.ListenAndServe(s.config.PORT, s.router)
