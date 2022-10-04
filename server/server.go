@@ -4,6 +4,7 @@ import (
 	"api/handlers"
 	"api/store"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -28,6 +29,10 @@ func (s *Server)Start() error {
 
 	if err := s.store.Open(); err != nil {
 		return err
+	}
+
+	if len(os.Getenv("PORT")) > 0 {
+		s.config.PORT = os.Getenv("PORT")
 	}
 
 	return http.ListenAndServe(s.config.PORT, s.router)
